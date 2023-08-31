@@ -53,6 +53,15 @@ typedef struct s_vars{
 	size_t	lngh;	
 }t_vars;
 
+void	free_var(t_vars *vars, size_t i)
+{
+	while (i < vars->line_cnt)
+		free(vars->map[i++]);
+	i = 0;
+	while (i < vars->line_cnt)
+		free(vars->map2[i++]);
+}
+
 int	close_win(t_vars *vars)
 {
 	if (vars->map[vars->y][vars->x] == 4 && vars->collect == 0)
@@ -62,6 +71,7 @@ int	close_win(t_vars *vars)
 	}
 	ft_printf("\nYou exit the game\n\n");
 	mlx_destroy_window(vars->mlx, vars->win);
+	free_var(vars, 0);
 	exit (0);
 }
 
@@ -137,14 +147,6 @@ void	move_left(t_vars *vars)
 	}
 }
 
-int	mouse_hook(t_vars *vars)
-{
-	ft_printf("You exit the game\n");
-	exit (0);
-	close_win(vars);
-	return (0);
-}
-
 int	key_hook(int keycode, t_vars *vars)
 {
 	if (keycode == 65307)
@@ -196,7 +198,7 @@ void	vars_init(t_vars *vars, char *argv)
 void	finish(char	*error)
 {
 	ft_printf("Error\n");
-	ft_printf("%s", error);
+	ft_printf("%s\n", error);
 	exit(0);
 }
 
@@ -413,7 +415,7 @@ int	main(int argc, char *argv[])
 	map_prerender(&vars);
 	map_render(&vars, 0, 0);
 	map_check(&vars);
-	mlx_mouse_hook(vars.win, mouse_hook, &vars);
+	mlx_hook(vars.win, 17, 1L << 17, close_win, &vars);
 	mlx_key_hook(vars.win, key_hook, &vars);
 	mlx_loop(vars.mlx);
 	return (0);
